@@ -23,7 +23,7 @@ Add secrets in repo **Settings > Secrets and variables > Actions > New repositor
 
 ## Generate SonarQube Token
 
-Log into SonarQube > **My Account > Security > Generate Tokens > User Token**. Enter name (e.g., "GitHub Actions"), set expiry, generate, and copy the token immediately. [web:21][web:22][web:24]
+Log into SonarQube > **My Account > Security > Generate Tokens > User Token**. Enter name (e.g., "GitHub Actions"), set expiry, generate, and copy the token immediately.  
 
 ## Workflow Breakdown
 
@@ -37,4 +37,16 @@ The workflow scans a Java Maven app for quality issues via SonarQube.
 **Automatic**: Push/PR triggers analysis.
 
 **Call externally**:
+Same Repo
+jobs:
+  trigger-build:
+    uses: ./.github/workflows/build.yml@main  # Relative path, current main branch
+    secrets: inherit
+
+Cross Repo
+jobs:
+  trigger-build:
+    uses: your-org/target-repo/.github/workflows/build.yml@main
+    secrets:
+      inherit  # Or specific: SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
