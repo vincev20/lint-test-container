@@ -5,6 +5,7 @@ on:
       - main # the name of your main branch
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_call:
 jobs:
   build:
     name: Build
