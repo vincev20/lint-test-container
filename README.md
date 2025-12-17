@@ -1,4 +1,4 @@
-# Maven Java CI/CD Starter
+# Test and Lint for Github Actions - Maven Java CI/CD 
 
 A minimal Maven Java project with **Google Java Format linting** and **JaCoCo coverage enforcement (85%+)** for CI/CD readiness (GitHub Actions).
 
