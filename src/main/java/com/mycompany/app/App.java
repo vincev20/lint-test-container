@@ -1,15 +1,16 @@
 package com.mycompany.app;
 
-/** Prints a few lines to standard output. */
+/** Sample application with testable utility method. */
 public final class App {
+  private App() {}
 
-  private App() {
-    // Utility class; prevent instantiation.
+  public static String getGreeting() {
+    return "Hello World 3!";
   }
 
   public static void main(String[] args) {
-    System.out.println("Hello World 3!");
-    System.out.println("Hello World 3!");
-    System.out.println("Hello World 3!");
+    System.out.println(getGreeting());
+    System.out.println(getGreeting());
+    System.out.println(getGreeting());
   }
 }
