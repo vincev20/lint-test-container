@@ -2,6 +2,7 @@ name: Lint and Test Java
 
 on:
   workflow_call:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
