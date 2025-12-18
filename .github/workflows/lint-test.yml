@@ -1,7 +1,6 @@
 name: Lint and Test Java
 
 on:
-  workflow_dispatch:
   workflow_call:
   push:
     branches: [ main ]
