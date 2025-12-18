@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
+          repository: vincev20/dcxeng-common-lintingtesting2
           ref: ${{ github.workflow_sha }}
       
       - name: Set up JDK 17
