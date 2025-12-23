@@ -1,0 +1,49 @@
+name: Upload Java Artifacts
+on:
+  workflow_call:
+    inputs:
+      runner_label:
+          description: 'Linux runner label (e.g., linux-amd64 | linux-amd64-medium | linux-amd64-large)'
+          type: string
+          default: 'linux-amd64'
+      job_container_image:
+        description: 'Container image to use for the build job'
+        required: false
+        type: string
+        default: 'maven:3.9-eclipse-temurin-17-alpine'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-test:
+    runs-on: ${{ inputs.runner_label }}
+    container:
+          image: ${{ inputs.job_container_image }}
+          credentials:
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: vincev20/lint-test-container
+          ref: v1.0.1
+      
+      - name: Run style check and tests with coverage
+        run: |
+          mvn -B clean compile com.spotify.fmt:fmt-maven-plugin:check
+          mvn -B clean verify
+      
+      - name: Prepare artifacts directory
+        run: |
+          mkdir -p staging
+          cp target/*.jar staging/ || echo "No JARs found"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-build-artifacts
+          path: staging
