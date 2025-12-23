@@ -1,105 +1,118 @@
-# Test and Lint for GitHub Actions (Maven Java CI)
+# Upload Java Artifacts for GitHub Actions (Maven Java CI)
 
-Minimal Maven Java project configured for CI/CD with:
-- Google Java Format linting
-- JaCoCo coverage enforcement (85%+)
+Minimal Maven Java project + GitHub Actions workflow that builds a Java application and uploads the resulting outputs as GitHub Actions artifacts (for easy download from a workflow run).
 
-This repository is intended to be used as a template or reference for Java projects that want consistent formatting, reliable tests, and a coverage gate in CI.
+This repository is intended to be used as a template or reference for Java projects that want a reliable Maven build in CI and a straightforward way to retrieve compiled artifacts (e.g., JARs) from GitHub Actions.
 
 ## What’s included
 
-- Formatting/linting via the Spotify `fmt-maven-plugin` (Google Java Format)
-- Unit testing with JUnit 5 (via Surefire)
-- Coverage reports and coverage gate via JaCoCo (fails the build if coverage is below the threshold)
+- Maven build (clean + package/verify)
+- Optional unit tests (Surefire + JUnit 5, if your project includes tests)
+- Upload of build outputs as GitHub Actions artifacts
 
 ## Repository structure
 
-- Java production code is in `src/main/java`
-- Unit tests are in `src/test/java`
+- Production code: `src/main/java`
+- Unit tests: `src/test/java`
+- Maven build output: `target/`
 
 ## Quick start (local)
 
-Run lint, tests, and coverage verification (fails if coverage is < 85%):
+Build the project:
 
 ```bash
-mvn clean verify
+mvn clean package
 ```
 
-Auto-format code (Google Java Format):
+Run tests (if present):
 
 ```bash
-mvn fmt:format
+mvn test
 ```
 
-Check formatting without modifying files:
+Your packaged artifacts are typically located in:
 
-```bash
-mvn fmt:check
-```
+- `target/*.jar`
 
-View the JaCoCo HTML coverage report after `mvn verify`:
+## GitHub Actions workflow
 
-```bash
-open target/site/jacoco/index.html
-```
+The upload workflow lives at:
 
-## GitHub Actions usage
+- `.github/workflows/upload-artifacts.yml`
 
-The CI workflow lives at:
+The workflow builds the project and uploads selected files (commonly JARs from `target/`) as downloadable artifacts.
 
-- `.github/workflows/lint-test.yml`
+### Automatic triggers
 
-It is designed to support two usage patterns:
-- Manual runs (from the GitHub UI)
-- Reuse from another workflow (as a “called” workflow)
+Most projects run this workflow on:
 
-### Run manually (workflow_dispatch)
+- `push`
+- `pull_request`
 
-This workflow can be triggered manually from the GitHub UI (Actions tab) when `workflow_dispatch` is enabled in the workflow file.
+### Manual trigger (workflow_dispatch)
 
-Typical use cases:
-- Validating changes on-demand
-- Re-running checks after updating repository secrets/variables
-- Trying out changes without pushing new commits
+If enabled, the workflow can be run manually from the GitHub UI (Actions tab). Useful for:
 
-### Call from another workflow (workflow_call)
+- rebuilding artifacts on demand
+- validating builds without pushing new commits
+- generating a fresh artifact bundle for download
 
-This workflow can also be invoked from another workflow using `workflow_call`. This is useful for:
-- Centralizing CI logic in one place
-- Reusing the same lint/test/coverage policy across multiple repositories
+## What gets uploaded
 
-Example caller workflow:
+What you upload depends on your workflow configuration. Common artifact candidates include:
+
+- `target/*.jar` (primary build output)
+- `target/surefire-reports/**` (unit test reports)
+- `target/site/**` (if you generate a Maven site)
+- any other build outputs your project produces
+
+After the workflow finishes, download artifacts from the workflow run page under “Artifacts”.
+
+## Example workflow snippet
+
+Example job that builds and uploads JARs and test reports:
 
 ```yaml
-name: CI (caller)
+name: Build and Upload (Maven)
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  java-ci:
-    uses: <OWNER>/<REPO>/.github/workflows/lint-test.yml@<REF>
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B clean package
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-artifacts
+          path: |
+            target/*.jar
+            target/surefire-reports/**
 ```
 
-Replace:
-- `<OWNER>/<REPO>` with the repository hosting this workflow
-- `<REF>` with a branch, tag, or SHA
-
-## Key Maven plugins
-
-| Plugin | Purpose | Common commands |
-|-------|---------|-----------------|
-| [`fmt-maven-plugin`](https://github.com/spotify/fmt-maven-plugin) | Enforces Google Java Format (imports, braces, whitespace, etc.). | `mvn fmt:check` / `mvn fmt:format` |
-| [JaCoCo](https://www.eclemma.org/jacoco/) | Generates coverage reports and enforces a minimum coverage threshold (configured in `pom.xml`). | Runs during `verify` |
-| Surefire + JUnit 5 | Runs unit tests. | Runs during `test` |
+Adjust `java-version`, Maven goals (e.g., `verify`), and uploaded paths as needed.
 
 ## Development workflow
 
-- Before committing: `mvn fmt:format && mvn test`
-- In CI: `mvn clean verify`
+- Before committing: `mvn test`
+- In CI: `mvn -B clean package` (or `mvn -B clean verify` for stricter validation)
 
 ## Notes
 
-- The coverage threshold is enforced during `verify`; adjust it in `pom.xml` if needed.
-- Add dependencies in `pom.xml` as your project grows (e.g., Spring Boot, database drivers, test libraries).
+- If your build produces multiple JARs (e.g., `original-*.jar` plus a shaded/fat JAR), refine the upload glob to include only what you want.
+- GitHub Actions artifacts are for downloading outputs from a workflow run; they are not the same as publishing to GitHub Releases or deploying to a Maven repository.
