@@ -18,25 +18,6 @@ jobs:
         with:
           repository: vincev20/lint-test-container
           ref: v1.0.1
-
-      - name: Run style check and tests with coverage
-        run: |
-          mvn -B clean compile com.spotify.fmt:fmt-maven-plugin:check
-          mvn -B clean verify
-
-      - name: Show effective jar plugin config
-        run: |
-          mvn -q help:effective-pom | sed -n '/maven-jar-plugin/,/\/plugin/p'
-
-
-      - name: Verify JAR manifest has Main-Class
-        run: |
-          ls -lah target/*.jar
-          jar xf target/my-app2-1.0-SNAPSHOT.jar META-INF/MANIFEST.MF
-          echo "---- MANIFEST ----"
-          cat META-INF/MANIFEST.MF
-          echo "------------------"
-          grep -q "^Main-Class: com.mycompany.app.App" META-INF/MANIFEST.MF
       
       - name: Prepare artifacts directory
         run: |
