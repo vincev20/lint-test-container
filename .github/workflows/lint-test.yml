@@ -19,6 +19,11 @@ jobs:
           repository: vincev20/lint-test-container
           ref: v1.0.1
       
+      - name: Run style check and tests with coverage
+        run: |
+          mvn -B clean compile com.spotify.fmt:fmt-maven-plugin:check
+          mvn -B clean verify
+      
       - name: Prepare artifacts directory
         run: |
           mkdir -p staging
