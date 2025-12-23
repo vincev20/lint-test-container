@@ -49,18 +49,20 @@
       </plugin>
 
       <!-- Make the JAR executable with java -jar -->
-      <plugin>
-       <groupId>org.apache.maven.plugins</groupId>
-       <artifactId>maven-jar-plugin</artifactId>
-       <version>3.3.0</version>
-       <configuration>
-       <archive>
-        <manifest>
-          <mainClass>com.mycompany.app.App</mainClass>
-        </manifest>
-       </archive>
-       </configuration>
-      </plugin>
+     <!-- Make the JAR executable with java -jar -->
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-jar-plugin</artifactId>
+  <version>3.4.1</version>
+  <configuration>
+    <archive>
+      <manifest>
+        <mainClass>com.mycompany.app.App</mainClass>
+      </manifest>
+    </archive>
+  </configuration>
+</plugin>
+
 
       <!-- Run unit tests (JUnit 5) -->
       <plugin>
