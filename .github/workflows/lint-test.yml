@@ -2,6 +2,16 @@ name: Lint and Test Java
 
 on:
   workflow_call:
+    inputs:
+      runner_label:
+          description: 'Linux runner label (e.g., linux-amd64 | linux-amd64-medium | linux-amd64-large)'
+          type: string
+          default: 'linux-amd64'
+      job_container_image:
+        description: 'Container image to use for the build job'
+        required: false
+        type: string
+        default: 'maven:3.9-eclipse-temurin-17-alpine'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -10,9 +20,13 @@ on:
 
 jobs:
   lint-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_label }}
     container:
-      image: maven:3.9-eclipse-temurin-17-alpine
+          image: ${{ inputs.job_container_image }}
+          credentials:
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+    
     steps:
       - uses: actions/checkout@v4
         with:
