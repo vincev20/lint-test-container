@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: vincev20/lint-test-container
-          ref: v1.0.0
+          ref: v1.0.1
 
       - name: Run style check and tests with coverage
         run: |
