@@ -11,18 +11,13 @@ on:
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    container:
+      image: maven:3.9-eclipse-temurin-17-alpine
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: PMI-DEEP-DCXENG/dcxeng-common-java-linting-testing
+          repository: vincev20/lint-test-container
           ref: v1.0.0
-      
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
 
       - name: Run style check and tests with coverage
         run: |
