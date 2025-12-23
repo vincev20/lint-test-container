@@ -23,6 +23,15 @@ jobs:
         run: |
           mvn -B clean compile com.spotify.fmt:fmt-maven-plugin:check
           mvn -B clean verify
+
+      - name: Verify JAR manifest has Main-Class
+        run: |
+          ls -lah target/*.jar
+          jar xf target/my-app2-1.0-SNAPSHOT.jar META-INF/MANIFEST.MF
+          echo "---- MANIFEST ----"
+          cat META-INF/MANIFEST.MF
+          echo "------------------"
+          grep -q "^Main-Class: com.mycompany.app.App" META-INF/MANIFEST.MF
       
       - name: Prepare artifacts directory
         run: |
